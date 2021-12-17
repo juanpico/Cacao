@@ -21,12 +21,13 @@ for(a in 1956:1984){
 }
 
 # Directorio de la carpeta actual
-setwd('C:/Users/Juan Camilo Pico/OneDrive - Universidad de los andes/Uniandes/PG2/Generación de instancias')
+current_working_dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
+setwd(current_working_dir)
 
 # Importar función que genera archivo de datos climaticos aleatorios
 source('instancias.R')
 
-n = 5
+n = 10
 for(i in 1:n){
   
   # Medir tiempo de inicio del algoritmo
@@ -35,6 +36,7 @@ for(i in 1:n){
   }
   
   # generar archivo de clima
+  setwd(current_working_dir)
   data <- generacion(i)
   
   # Cambiar el wd al directorio del case2
@@ -65,7 +67,7 @@ for(i in 1:n){
   
   
   # Leer resultados
-  setwd('C:/Users/Juan Camilo Pico/OneDrive - Universidad de los andes/Uniandes/PG2/Generación de instancias')
+  setwd(current_working_dir)
   
   # Leer el archivo que indica los parámetros de cada rerun
   reruns <- read.csv("reruns.csv", sep=";")
@@ -113,8 +115,8 @@ for(i in 1:n){
   }
   
   # guardar resultados
-  setwd('C:/Users/Juan Camilo Pico/OneDrive - Universidad de los andes/Uniandes/PG2/Generación de instancias')
-  write.csv(datos, "datos_ml.csv")
+  setwd(current_working_dir)
+  write.csv(datos, "datos_ml_tr.csv")
   
   # Eliminar archivos de reruns
   setwd("C:/case2/program/")

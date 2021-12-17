@@ -1,30 +1,13 @@
-k<-1
+library(triangle)
+
 generacion <- function(k){
-  # Generacion de instancias V1.0
+  # Generacion de instancias 
   set.seed(2021*k)
   
-  # Rangos de las variables predictoras
+  # Dataframe con parámetros de la distribución triangular de cada variable
+  rangos <- read.csv("params_triangular.csv")[-1]
   
-  # Temperatura minima
-  temp_min_range <- c(19, 25)
-  # Temperatura maxima
-  temp_max_range <- c(28, 36)
-  # Irradiacion
-  irr_range <- c(14, 20)
-  # Presion de vapor
-  vapor_range <- c(29, 43)
-  # Windspeed
-  wind_range <- c(-99, -99)
-  # Precipitacion
-  precip_range <- c(0, 1400)
-  # Dias con lluvia
-  dias_lluvia_range <- c(0,31)
-  
-  # Dataframe con rangos
-  rangos <- cbind(temp_min_range, temp_max_range, irr_range,
-                  vapor_range, wind_range, precip_range, dias_lluvia_range)
-  
-  # Generacion de instancias climaticas
+  ## Generacion de instancias climaticas
   
   # Parametros
   anios_range <- c(1956, 2002)
@@ -55,10 +38,10 @@ generacion <- function(k){
     if(var=="Dias_con_lluvia"){
       
     }else if(var=="Precipitacion"){
-      data[,var] <- round(runif(nrow(data), min=rangos[,var][1], max=rangos[,var][2]))
+      data[,var] <- round(rtriangle(nrow(data), a=rangos[,var][1], b=rangos[,var][2], c=rangos[,var][4]))
     
     }else{
-      data[,var] <- runif(nrow(data), min=rangos[,var][1], max=rangos[,var][2])
+      data[,var] <- rtriangle(nrow(data), a=rangos[,var][1], b=rangos[,var][2], c=rangos[,var][4])
     }
     
   }
@@ -67,7 +50,14 @@ generacion <- function(k){
   dias_por_mes <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
   
   for(i in 1:nrow(data)){
-    data[i, "Dias_con_lluvia"] <- round(runif(1, min=0, max=dias_por_mes[data[i, "Mes"]]))
+    if(dias_por_mes[data[i, "Mes"]]==28){
+      data[i, "Dias_con_lluvia"] <- round(rtriangle(1, a=rangos[,"Dias_con_lluvia"][1], b=dias_por_mes[data[i, "Mes"]], 
+                                                    c=(3*(rangos[,"Dias_con_lluvia"][3]-2) - rangos[,"Dias_con_lluvia"][1] - rangos[,"Dias_con_lluvia"][2])))
+    }else{
+      data[i, "Dias_con_lluvia"] <- round(rtriangle(1, a=rangos[,"Dias_con_lluvia"][1], b=dias_por_mes[data[i, "Mes"]], 
+                                                    c=(3*rangos[,"Dias_con_lluvia"][3] - rangos[,"Dias_con_lluvia"][1] - rangos[,"Dias_con_lluvia"][2])))
+    }
+    
   }
 
   

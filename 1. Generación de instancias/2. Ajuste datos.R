@@ -7,10 +7,9 @@ current_working_dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(current_working_dir)
 
 # Leer datos
-datos <- read.csv('datos_ml.csv', fileEncoding = "latin1")[,-1]
-datos2 <- read.csv('datos_ml_2.csv', fileEncoding = "latin1")[,-1]
-
-datos <- rbind(datos, datos2)
+datos <- read.csv('datos_ml_tr.csv', fileEncoding = "latin1")[,-1]
+#datos2 <- read.csv('datos_ml_2.csv', fileEncoding = "latin1")[,-1]
+#datos <- rbind(datos, datos2)
 
 # Renombrar columna con el tipo de suelo
 datos <- datos %>% rename(SOILTYPE="ï..SOILTYPE")
@@ -47,4 +46,4 @@ ggplot(data=datos, aes(x=periodo, y=pods_ajustados))+
 
 # Exportar datos ajustados
 
-write.csv(datos, "datos_ml_ajustados.csv")
+write.csv(datos, "datos_ml_ajustados_tr.csv")
