@@ -7,7 +7,7 @@ source("Truncated-Triangular-Simulation/Scripts/Generate-Triangular.R")
 source("Truncated-Triangular-Simulation/Scripts/Generate-Truncated-Triangular.R")
 
 # Cargar el modelo 
-model <- readRDS("random_forest.rds")
+model <- readRDS("random_forest_tr.rds")
 
 # Cargar parámetros de las variedades
 params_IM <- read.csv('params_IM.csv', sep=';')
