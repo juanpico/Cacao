@@ -2,6 +2,10 @@ library(tidyverse)
 library(ggplot2)
 # Análisis descriptivo de las variables meteorológicas
 
+# Directorio de la carpeta actual
+  current_working_dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
+  setwd(current_working_dir)
+
 # Datos precipitación
   precipitacion <- read.csv('datos clima/datos_precip.csv')[,-1]
   
@@ -9,19 +13,103 @@ library(ggplot2)
   temperatura <- read.csv('datos clima/datos_clima.csv')[,-1]
 
 # Fenómeno del niño y la niña
-  oni <- read.csv('datos clima/ONI.csv', sep=';')
-  oni <- pivot_longer(oni, c(Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre),
-                      names_to = "Mes") %>% rename(Fenómeno=value)
-  oni$Fecha <- seq(as.Date("2000-01-01"), by = "months", length.out = nrow(oni))
-  
-  temperatura <- cbind(temperatura, data.frame(oni$Fenómeno)) %>% rename(Fenómeno=oni.Fenómeno)
-  precipitacion <- precipitacion %>% left_join(oni[,c('Fecha', 'Fenómeno')], by='Fecha')
+#  oni <- read.csv('datos clima/ONI.csv', sep=';')
+#  oni <- pivot_longer(oni, c(Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre),
+#                      names_to = "Mes") %>% rename(Fenómeno=value)
+#  oni$Fecha <- seq(as.Date("2000-01-01"), by = "months", length.out = nrow(oni))
+#  
+#  temperatura <- cbind(temperatura, data.frame(oni$Fenómeno)) %>% rename(Fenómeno=oni.Fenómeno)
+#  precipitacion <- precipitacion %>% left_join(oni[,c('Fecha', 'Fenómeno')], by='Fecha')
   
 # cambiar nombre de columans
   temperatura <- temperatura %>% rename(c('Temperatura_mínima'=Temperatura.mínima.diaria_mean,
                                     'Temperatura_máxima'=Temperatura.máxima.diaria_mean))
   temperatura$Fecha <- as.Date(paste(temperatura$Fecha,'-01', sep=""))
   precipitacion$Fecha <- as.Date(paste(precipitacion$Fecha,'-01', sep=""))
+  
+  
+# Crear tabla con mínimo, máximo, mediana y C (parámetro de la distribución
+# triangular) de cada variable
+  
+  # Temperatura minima
+  temp_min_range <- c(min(temperatura$Temperatura_mínima, na.rm = TRUE), max(temperatura$Temperatura_mínima, na.rm = TRUE))
+  temp_min_range <- c(temp_min_range, median(temperatura$Temperatura_mínima, na.rm=T))
+  a <- temp_min_range[1]
+  b <- temp_min_range[2]
+  m <- temp_min_range[3]
+  if(m < ((a + b)/2)){
+    temp_min_range <- c(temp_min_range, b - (2*(b-m)^2)/(b-a) )
+  }else{
+    temp_min_range <- c(temp_min_range, a + (2*(a-m)^2)/(b-a) )
+  }
+  
+  # Temperatura maxima
+  temp_max_range <- c(min(temperatura$Temperatura_máxima, na.rm = TRUE), max(temperatura$Temperatura_máxima, na.rm = TRUE))
+  temp_max_range <- c(temp_max_range, median(temperatura$Temperatura_máxima, na.rm=T))
+  a <- temp_max_range[1]
+  b <- temp_max_range[2]
+  m <- temp_max_range[3]
+  if(m < ((a + b)/2)){
+    temp_max_range <- c(temp_max_range, b - (2*(b-m)^2)/(b-a) )
+  }else{
+    temp_max_range <- c(temp_max_range, a + (2*(a-m)^2)/(b-a) )
+  }
+  
+  # Irradiacion
+  irr_range <- c(14, 20)
+  irr_range <- c(min(temperatura$Irradiacion, na.rm = TRUE), max(temperatura$Irradiacion, na.rm = TRUE))
+  irr_range <- c(irr_range, median(temperatura$Irradiacion, na.rm=T))
+  a <- irr_range[1]
+  b <- irr_range[2]
+  m <- irr_range[3]
+  if(m < ((a + b)/2)){
+    irr_range <- c(irr_range, b - (2*(b-m)^2)/(b-a) )
+  }else{
+    irr_range <- c(irr_range, a + (2*(a-m)^2)/(b-a) )
+  }
+
+  # Presion de vapor
+  vapor_range <- c(min(temperatura$presion_vapor_prom, na.rm = TRUE), max(temperatura$presion_vapor_prom, na.rm = TRUE))
+  vapor_range <- c(vapor_range, median(temperatura$presion_vapor_prom, na.rm=T))
+  a <- vapor_range[1]
+  b <- vapor_range[2]
+  m <- vapor_range[3]
+  if(m < ((a + b)/2)){
+    vapor_range <- c(vapor_range, b - (2*(b-m)^2)/(b-a) )
+  }else{
+    vapor_range <- c(vapor_range, a + (2*(a-m)^2)/(b-a) )
+  }
+
+  # Windspeed
+  wind_range <- c(-99, -99, -99, -99)
+  
+  # Precipitacion
+  precip_range <- c(min(precipitacion$precipitacion, na.rm = TRUE), max(precipitacion$precipitacion, na.rm = TRUE))
+  precip_range <- c(precip_range, median(precipitacion$precipitacion, na.rm=T))
+  a <- precip_range[1]
+  b <- precip_range[2]
+  m <- precip_range[3]
+  if(m < ((a + b)/2)){
+    precip_range <- c(precip_range, b - (2*(b-m)^2)/(b-a) )
+  }else{
+    precip_range <- c(precip_range, a + (2*(a-m)^2)/(b-a) )
+  }
+  
+  # Dias con lluvia
+  dias_lluvia_range <- c(min(precipitacion$dias_lluvia, na.rm = TRUE), max(precipitacion$dias_lluvia, na.rm = TRUE))
+  dias_lluvia_range <- c(dias_lluvia_range, mean(precipitacion$dias_lluvia, na.rm=T))
+  a <- dias_lluvia_range[1]
+  b <- dias_lluvia_range[2]
+  m <- dias_lluvia_range[3]
+  dias_lluvia_range <- c(dias_lluvia_range, 3*m - a - b )
+  
+  # Dataframe con rangos
+  rangos <- cbind(temp_min_range, temp_max_range, irr_range,
+                  vapor_range, wind_range, precip_range, dias_lluvia_range)
+  
+  # Exportar dataframe
+  write.csv(rangos, "params_triangular.csv")
+
   
 ### Temperatura mínima
   
