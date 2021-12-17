@@ -12,7 +12,7 @@ setwd(current_working_dir)
 # Preprocesamiento de los datos -------------------------------------------
 
 # Leer datos
-datos <- read.csv("datos_ml_ajustados.csv")[, -1]
+datos <- read.csv("datos_ml_ajustados_tr.csv")[, -1]
 
 # Ordenar datos
 datos <- arrange(datos, it, id, Anio, Mes)
@@ -113,6 +113,7 @@ elastic_net <- train(pods_ajustados~., data=datos, method='glmnet',
                      tuneGrid=grid)
 
 mean(elastic_net$resample$RMSE)
+elastic_net$bestTune
 # IC RMSE
 qt(0.975, 9)*sd(elastic_net$resample$RMSE)/3
 
@@ -170,7 +171,7 @@ rf_cv2 <- train(pods_ajustados~., data=datos, method='rf',
 mean(rf_cv2$resample$RMSE)
 # IC RMSE
 qt(0.975, 9)*sd(rf_cv2$resample$RMSE)/3
-mean(rf_cv$resample$mape)
+mean(rf_cv2$resample$mape)
 
 # Entrenar RF con partición 80/20
 library(randomForest)
@@ -224,7 +225,7 @@ set.seed(1)
 rf=randomForest(pods_ajustados~.,datos, ntree=200, mtry=6) # Entrenar
 
 # Guardar modelo RF con todos los datos
-saveRDS(rf, "random_forest.rds")
+saveRDS(rf, "random_forest_tr.rds")
 
 # Mirar importancias
 imp_rf=importance(rf)
@@ -294,7 +295,7 @@ mse_modelos["Boosted trees", "mape"] <- mape_boost
 
 # Caso de estudio ---------------------------------------------------------
 
-clima_villavicencio <- read.csv("../Datos IDEAM/Cubarral/datos_clima_cubarral.csv")[-1]
+clima_villavicencio <- read.csv("../0. Datos IDEAM/Cubarral/datos_clima_cubarral.csv")[-1]
 
 # Preparar datos de clima
 
